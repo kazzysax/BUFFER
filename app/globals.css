@@ -1,0 +1,268 @@
+:root {
+  color-scheme: dark;
+  --black: #000000;
+  --ink: #f3efea;
+  --ink-2: #c9c3bb;
+  --muted: #8e8880;
+  --line: rgba(255, 255, 255, 0.08);
+  --line-2: rgba(255, 255, 255, 0.14);
+  --glass: rgba(255, 255, 255, 0.035);
+  --glass-2: rgba(255, 255, 255, 0.06);
+  --flare: #ff6a2b; /* UI accent: buttons, wire */
+  --flare-hi: #ff8a4c;
+  --ember-deep: #3a1104;
+  /* chart series (validated on dark surface) */
+  --series-hedged: #ee5a1e;
+  --series-unhedged: #4c8ddb;
+  /* status (fixed) */
+  --good: #22b35a;
+  --warning: #fab219;
+  --critical: #e0484a;
+  --surface-chart: #0e0d0c;
+  --r-lg: 28px;
+  --r-md: 18px;
+  --r-sm: 12px;
+  --pill: 999px;
+  --gutter: clamp(16px, 4vw, 40px);
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  background: var(--black);
+  color: var(--ink);
+}
+body {
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01", "cv11";
+  overflow-x: hidden;
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+button {
+  font: inherit;
+  color: inherit;
+}
+.num {
+  font-variant-numeric: tabular-nums;
+}
+:focus-visible {
+  outline: 2px solid var(--flare-hi);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+::selection {
+  background: var(--flare);
+  color: #000;
+}
+
+/* ───────────── type scale (1.25, display set tight) */
+.display {
+  font-size: clamp(40px, 6.4vw, 76px);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  font-weight: 500;
+  margin: 0;
+}
+.h2 {
+  font-size: clamp(28px, 3.6vw, 42px);
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+  font-weight: 500;
+  margin: 0;
+}
+.h3 {
+  font-size: 22px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  font-weight: 500;
+  margin: 0;
+}
+.lede {
+  color: var(--ink-2);
+  font-size: 17px;
+  max-width: 52ch;
+}
+.small {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ───────────── buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 6px 0 20px;
+  border-radius: var(--pill);
+  border: 0;
+  cursor: pointer;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+.btn-primary {
+  background: linear-gradient(180deg, var(--flare-hi), var(--flare) 55%, #e2470f);
+  color: #160600;
+  box-shadow: 0 0 0 1px rgba(255, 140, 80, 0.4) inset, 0 10px 40px -10px rgba(255, 106, 43, 0.7);
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 1px rgba(255, 160, 100, 0.6) inset, 0 14px 50px -10px rgba(255, 106, 43, 0.9);
+}
+.btn .chip {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--pill);
+  background: rgba(0, 0, 0, 0.85);
+  color: var(--flare-hi);
+}
+.btn-ghost {
+  background: var(--glass-2);
+  border: 1px solid var(--line-2);
+  padding: 0 18px;
+}
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.09);
+}
+.btn-sm {
+  height: 36px;
+  padding: 0 14px;
+  font-size: 14px;
+}
+.btn-danger {
+  background: rgba(224, 72, 74, 0.14);
+  border: 1px solid rgba(224, 72, 74, 0.5);
+  color: #ffb3b3;
+  padding: 0 18px;
+}
+
+/* ───────────── glass */
+.glass {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.02));
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 30px 80px -30px rgba(0, 0, 0, 0.9);
+}
+.inset {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+
+/* ───────────── badges */
+.tier {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 10px;
+  border-radius: var(--pill);
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid;
+}
+.tier svg {
+  width: 12px;
+  height: 12px;
+}
+.tier-HIGH {
+  color: #ffb0b0;
+  border-color: rgba(224, 72, 74, 0.55);
+  background: rgba(224, 72, 74, 0.12);
+}
+.tier-MEDIUM {
+  color: #ffd98a;
+  border-color: rgba(250, 178, 25, 0.5);
+  background: rgba(250, 178, 25, 0.1);
+}
+.tier-LOW {
+  color: var(--ink-2);
+  border-color: var(--line-2);
+  background: var(--glass);
+}
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: var(--pill);
+  font-size: 12px;
+  color: var(--ink-2);
+  background: var(--glass-2);
+  border: 1px solid var(--line);
+}
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* ───────────── the glow (hero + auth) */
+.glow {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.glow::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -18%;
+  width: min(1100px, 150vw);
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background:
+    radial-gradient(closest-side, transparent 52%, rgba(255, 106, 43, 0.0) 53%, rgba(255, 106, 43, 0.55) 60%, rgba(255, 70, 10, 0.18) 66%, transparent 72%),
+    radial-gradient(closest-side, transparent 38%, rgba(255, 120, 60, 0.25) 46%, transparent 56%),
+    conic-gradient(from 200deg, transparent 0 18%, rgba(255, 90, 30, 0.55) 30%, transparent 42%, rgba(255, 140, 70, 0.35) 62%, transparent 76%);
+  filter: blur(26px);
+  opacity: 0.9;
+  mask-image: radial-gradient(closest-side, #000 60%, transparent 100%);
+}
+.glow::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 6%;
+  width: min(760px, 110vw);
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.95) 55%, transparent 100%);
+}
+.side-ember {
+  position: absolute;
+  right: -280px;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 106, 43, 0.45), transparent);
+  filter: blur(60px);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
