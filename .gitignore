@@ -7,3 +7,4 @@ verify/go/go.sum
 .next
 next-env.d.ts
 *.tsbuildinfo
+.data

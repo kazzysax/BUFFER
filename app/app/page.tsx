@@ -1,15 +1,13 @@
 "use client";
 
 import { useApi } from "@/lib/api";
-import { toQuery, useSettings } from "@/lib/settings";
 import type { TimelineResponse } from "@/lib/types";
 import { DataNote, ErrorBox, Loading } from "@/components/states";
 import { TierBadge, countdown, usd } from "@/components/ui";
 import s from "./pages.module.css";
 
 export default function Timeline() {
-  const { settings, loaded } = useSettings();
-  const { data, error, loading, retry } = useApi<TimelineResponse>(loaded ? `/api/timeline?${toQuery(settings)}` : null);
+  const { data, error, loading, retry } = useApi<TimelineResponse>("/api/timeline");
 
   const items = data?.items ?? [];
   const hedges = items.filter((i) => !i.plan.skip);

@@ -2,7 +2,6 @@
 
 import { use } from "react";
 import { useApi } from "@/lib/api";
-import { toQuery, useSettings } from "@/lib/settings";
 import type { EventResponse } from "@/lib/types";
 import { SurpriseScatter } from "@/components/charts";
 import { DataNote, ErrorBox, Loading } from "@/components/states";
@@ -13,8 +12,7 @@ const REGIME: Record<string, string> = { risk_off: "Nervous", neutral: "Calm", r
 
 export default function EventPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const { settings, loaded } = useSettings();
-  const { data, error, loading, retry } = useApi<EventResponse>(loaded ? `/api/event/${encodeURIComponent(id)}?${toQuery(settings)}` : null);
+  const { data, error, loading, retry } = useApi<EventResponse>(`/api/event/${encodeURIComponent(id)}`);
   const i = data?.item;
 
   return (

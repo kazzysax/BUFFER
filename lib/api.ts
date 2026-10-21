@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "./auth";
+import { useMe } from "./me";
 
 /** Authenticated GET with loading / error states. Re-runs when `path` changes. */
 export function useApi<T>(path: string | null) {
   const { token, authenticated } = useAuth();
+  const { version } = useMe();
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -33,7 +35,7 @@ export function useApi<T>(path: string | null) {
     return () => {
       cancelled = true;
     };
-  }, [path, authenticated, token, n]);
+  }, [path, authenticated, token, n, version]);
 
   const retry = useCallback(() => setN((x) => x + 1), []);
   return { data, error, loading, retry };

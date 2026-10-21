@@ -46,7 +46,7 @@ describe("replay", () => {
   it("writes a verifiable receipt chain with dry-run order payloads", () => {
     expect(r.receipts.verify()).toEqual({ ok: true });
     const kinds = r.receipts.entries.map((e) => e.kind);
-    expect(kinds).toEqual(["plan", "hedge_open", "dead_man_armed", "release", "hedge_close"]);
+    expect(kinds).toEqual(["plan", "hedge_open", "release", "hedge_close"]);
     const open = r.receipts.entries[1].data as { payloadHash: string; body: string };
     expect(open.payloadHash).toMatch(/^0x[0-9a-f]{64}$/);
     expect(JSON.parse(open.body).orders).toHaveLength(3);

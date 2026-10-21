@@ -1,6 +1,6 @@
 "use client";
 
-import { PrivyProvider, usePrivy } from "@privy-io/react-auth";
+import { PrivyProvider, usePrivy, useSignTypedData } from "@privy-io/react-auth";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
 export interface AuthUser {
@@ -18,6 +18,8 @@ export interface Auth {
   login: () => void;
   logout: () => Promise<void>;
   token: () => Promise<string | null>;
+  /** Ask the user's embedded wallet to sign EIP-712 data. Absent in preview mode. */
+  signTypedData?: (data: Record<string, unknown>) => Promise<string>;
 }
 
 const Ctx = createContext<Auth | null>(null);
@@ -32,6 +34,7 @@ const APP_ID = process.env.NEXT_PUBLIC_PRIVY_APP_ID;
 
 function PrivyBridge({ children }: { children: ReactNode }) {
   const p = usePrivy();
+  const { signTypedData } = useSignTypedData();
   const value = useMemo<Auth>(
     () => ({
       mode: "privy",
@@ -48,8 +51,15 @@ function PrivyBridge({ children }: { children: ReactNode }) {
       login: () => p.login(),
       logout: () => p.logout(),
       token: () => p.getAccessToken(),
+      signTypedData: async (data) =>
+        (
+          await signTypedData(data as Parameters<typeof signTypedData>[0], {
+            address: p.user?.wallet?.address,
+            uiOptions: { title: "Let Buffer trade on SoDEX", description: "This creates a trading key for Buffer. It can open and close hedges on SoDEX perps. It can't withdraw your funds.", buttonText: "Allow" },
+          })
+        ).signature,
     }),
-    [p.ready, p.authenticated, p.user, p.login, p.logout, p.getAccessToken], // eslint-disable-line react-hooks/exhaustive-deps
+    [p.ready, p.authenticated, p.user, p.login, p.logout, p.getAccessToken, signTypedData], // eslint-disable-line react-hooks/exhaustive-deps
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

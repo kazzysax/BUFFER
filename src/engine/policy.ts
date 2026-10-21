@@ -135,7 +135,7 @@ export function decideAfterRelease(args: {
   const surprise = args.actual - args.forecast;
   const z = zScore(surprise, args.pastSurprises);
   const meta = eventMeta(args.event);
-  const zTxt = z == null ? "n/a" : z.toFixed(2);
+  const zTxt = z == null ? "n/a" : Math.abs(z).toFixed(2); // direction is in the words; σ shows size
   if (z != null && Math.abs(z) < benign) {
     return { action: "UNWIND_NOW", surprise, surpriseZ: z, reason: `Came in close to forecast (${zTxt}σ), so the hedge comes off.` };
   }

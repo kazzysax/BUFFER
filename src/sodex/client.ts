@@ -85,6 +85,15 @@ export class SodexPerps {
   positions(addr: string, accountID?: number) {
     return this.req<unknown>("GET", `/accounts/${addr}/positions${accountID ? `?accountID=${accountID}` : ""}`);
   }
+  apiKeys(addr: string, name?: string) {
+    return this.req<Array<{ name: string; publicKey?: string; type?: number; expiresAt?: number; [k: string]: unknown }>>(
+      "GET",
+      `/accounts/${addr}/api-keys${name ? `?name=${encodeURIComponent(name)}` : ""}`,
+    );
+  }
+  openOrders(addr: string, accountID?: number) {
+    return this.req<{ orders?: Array<Record<string, unknown>> } | Array<Record<string, unknown>>>("GET", `/accounts/${addr}/orders${accountID ? `?accountID=${accountID}` : ""}`);
+  }
   balances(addr: string, accountID?: number) {
     return this.req<unknown>("GET", `/accounts/${addr}/balances${accountID ? `?accountID=${accountID}` : ""}`);
   }

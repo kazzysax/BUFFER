@@ -1,7 +1,9 @@
 import "server-only";
-import { ClaudeLLM, DEFAULT_MODEL, type LLM } from "@/src/agent/llm";
+import { createHash } from "node:crypto";
+import { ClaudeLLM, DEFAULT_MODEL, type JsonRequest, type LLM } from "@/src/agent/llm";
 import type { DataSource } from "@/src/engine/pipeline";
-import { DEFAULT_GUARDRAILS, type Guardrails, type Holdings } from "@/src/engine/policy";
+import type { Guardrails, Holdings } from "@/src/engine/policy";
+import { ensureUser, userView, type User } from "./users";
 import { liveSource } from "@/src/sources/live";
 import { sampleSource } from "@/src/sources/sample";
 
@@ -15,33 +17,38 @@ export function dataSource(): DataSource {
   return sample.src;
 }
 
+/**
+ * Same question within 30 minutes → same answer. Keeps the executor's 5-minute ticks and page loads
+ * from re-asking Claude, and keeps the agent's read stable between the plan and the trade.
+ */
+class CachedLLM implements LLM {
+  private cache = new Map<string, { at: number; v: unknown }>();
+  constructor(private inner: LLM) {}
+  get model() {
+    return this.inner.model;
+  }
+  async json<T>(req: JsonRequest<T>): Promise<T> {
+    const key = createHash("sha256").update(`${req.name}|${req.system}|${req.user}`).digest("hex");
+    const hit = this.cache.get(key);
+    if (hit && Date.now() - hit.at < 30 * 60_000) return hit.v as T;
+    const v = await this.inner.json(req);
+    this.cache.set(key, { at: Date.now(), v });
+    if (this.cache.size > 500) this.cache.delete(this.cache.keys().next().value!);
+    return v;
+  }
+}
+
 let llm: LLM | undefined | null = null;
 export function agent(): LLM | undefined {
-  if (llm === null) llm = process.env.ANTHROPIC_API_KEY ? new ClaudeLLM(process.env.ANTHROPIC_API_KEY, process.env.BUFFER_MODEL || DEFAULT_MODEL) : undefined;
+  if (llm === null) llm = process.env.ANTHROPIC_API_KEY ? new CachedLLM(new ClaudeLLM(process.env.ANTHROPIC_API_KEY, process.env.BUFFER_MODEL || DEFAULT_MODEL)) : undefined;
   return llm;
 }
 
-const num = (v: string | null, lo: number, hi: number, d: number) => {
-  const n = Number(v);
-  return v != null && Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : d;
-};
-
-/** Holdings + guardrails from query params, clamped server-side so the API can never be asked for more risk than the UI allows. */
-export function parseSettings(url: URL): { holdings: Holdings; guard: Guardrails } {
-  const q = url.searchParams;
-  return {
-    holdings: { BTC: num(q.get("btc"), 0, 10_000, 0.2), ETH: num(q.get("eth"), 0, 100_000, 3) },
-    guard: {
-      ...DEFAULT_GUARDRAILS,
-      maxHedgeRatio: num(q.get("maxRatio"), 0, 1, DEFAULT_GUARDRAILS.maxHedgeRatio),
-      maxNotionalUsd: num(q.get("maxUsd"), 0, 1_000_000, DEFAULT_GUARDRAILS.maxNotionalUsd),
-      maxLeverage: num(q.get("lev"), 1, 5, DEFAULT_GUARDRAILS.maxLeverage),
-      leadMinutes: num(q.get("lead"), 15, 240, DEFAULT_GUARDRAILS.leadMinutes),
-      maxHoldHours: num(q.get("hold"), 1, 24, DEFAULT_GUARDRAILS.maxHoldHours),
-      aggressiveness: num(q.get("aggr"), 0, 1.5, DEFAULT_GUARDRAILS.aggressiveness),
-      dryRun: q.get("live") !== "1",
-    },
-  };
+/** The signed-in user's stored holdings and limits — the server never takes these from the URL. */
+export async function userContext(userId: string): Promise<{ holdings: Holdings; guard: Guardrails; user: User }> {
+  const user = await ensureUser(userId);
+  const v = userView(user);
+  return { holdings: v.holdings, guard: v.guard, user };
 }
 
 export function sourceInfo() {

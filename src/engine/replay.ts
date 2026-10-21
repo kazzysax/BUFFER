@@ -1,5 +1,5 @@
 import type { MacroRelease } from "../sosovalue/client";
-import { buildDeadMan, buildHedgeBracket, buildUnwind } from "../sodex/orders";
+import { buildHedgeBracket, buildUnwind } from "../sodex/orders";
 import { payloadHash, bodyJson } from "../sodex/payload";
 import type { PerpsSymbol } from "../sodex/client";
 import { releaseTime } from "./events";
@@ -82,8 +82,6 @@ export function replayRelease(args: {
   if (leg && qty > 0) {
     const order = buildHedgeBracket({ accountID: acct, symbol: BTC_SYMBOL, quantity: qty, markPrice: entry, stopLossPct: leg.stopLossPct, takeProfitPct: leg.takeProfitPct });
     log.append("hedge_open", { symbol: "BTC-USD", qty, entry: +entry.toFixed(1), stopLoss: +sl.toFixed(1), takeProfit: +tp.toFixed(1), payloadHash: payloadHash(order), body: bodyJson(order), mode: "dry_run" }, openAt);
-    const dm = buildDeadMan(acct, plan.closeBy);
-    log.append("dead_man_armed", { cancelAllAt: plan.closeBy, payloadHash: payloadHash(dm) }, openAt + 1000);
   }
 
   // decision time: first full hour after release

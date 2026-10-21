@@ -6,13 +6,14 @@
  *   SODEX_API_KEY_NAME=...    optional; the *name* of a registered API key
  *   SYMBOL=BTC-USD            optional
  *   SEND=1                    actually submit (default: dry run — prints the signed request)
+ *   CLOSE=1                   with SEND=1, close the test hedge again right after opening it
  *   VMODE=eth                 optional; only if the server rejects the default v∈{0,1}
  *
  *   npx tsx scripts/test-order.ts
  */
 import type { Hex } from "viem";
 import { SodexPerps, SodexError } from "../src/sodex/client";
-import { buildDeadMan, buildHedgeBracket } from "../src/sodex/orders";
+import { buildHedgeBracket, buildUnwind } from "../src/sodex/orders";
 import { MarginMode } from "../src/sodex/types";
 
 const env = (k: string, required = true) => {
@@ -49,8 +50,9 @@ async function main() {
   const actions = [
     { type: "updateLeverage", params: { accountID, symbolID: symbol.id, leverage: 2, marginMode: MarginMode.ISOLATED } } as const,
     buildHedgeBracket({ accountID, symbol, quantity: qty, markPrice: mark, stopLossPct: 0.03, takeProfitPct: 0.03 }),
-    buildDeadMan(accountID, Date.now() + 15 * 60_000),
   ];
+  // CLOSE=1 also flattens the test position straight away with a reduce-only buy
+  if (env("CLOSE", false) === "1") actions.push(buildUnwind(accountID, symbol, Number(qty.toFixed(8))));
 
   for (const a of actions) {
     const p = await sodex.prepare(a);

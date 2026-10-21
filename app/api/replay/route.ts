@@ -1,5 +1,5 @@
 import { authenticate, unauthorized } from "@/lib/server/auth";
-import { dataSource, parseSettings, sourceInfo } from "@/lib/server/data";
+import { dataSource, userContext, sourceInfo } from "@/lib/server/data";
 import { eventMeta } from "@/src/engine/events";
 import { replayRelease, type ReplayResult } from "@/src/engine/replay";
 
@@ -10,7 +10,7 @@ export async function GET(req: Request) {
   const auth = await authenticate(req);
   if (!auth.ok) return unauthorized(auth);
   const url = new URL(req.url);
-  const { holdings, guard } = parseSettings(url);
+  const { holdings, guard } = await userContext(auth.userId);
   const pick = url.searchParams.get("pick");
   try {
     const src = dataSource();

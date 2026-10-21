@@ -1,5 +1,5 @@
 import { authenticate, unauthorized } from "@/lib/server/auth";
-import { agent, dataSource, parseSettings, sourceInfo } from "@/lib/server/data";
+import { agent, dataSource, userContext, sourceInfo } from "@/lib/server/data";
 import { buildTimeline } from "@/src/engine/pipeline";
 
 export const dynamic = "force-dynamic";
@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export async function GET(req: Request) {
   const auth = await authenticate(req);
   if (!auth.ok) return unauthorized(auth);
-  const { holdings, guard } = parseSettings(new URL(req.url));
+  const { holdings, guard } = await userContext(auth.userId);
   try {
     const t = await buildTimeline({ src: dataSource(), llm: agent(), holdings, guard });
     return Response.json({

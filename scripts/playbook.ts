@@ -44,7 +44,7 @@ async function main() {
   const candles = await hourlyCandles(sodex, "BTC-USD", now - 400 * 24 * H, now);
   console.log(`BTC-USD candles: ${candles.length} (${new Date(candles[0]?.t ?? now).toISOString().slice(0, 10)} → now)`);
 
-  const llm = process.env.ANTHROPIC_API_KEY ? new ClaudeLLM(process.env.ANTHROPIC_API_KEY, process.env.BUFFER_MODEL ?? DEFAULT_MODEL) : undefined;
+  const llm = process.env.ANTHROPIC_API_KEY ? new ClaudeLLM(process.env.ANTHROPIC_API_KEY, process.env.BUFFER_MODEL || DEFAULT_MODEL) : undefined;
   console.log(llm ? `agent: ${llm.model}` : "agent: off (set ANTHROPIC_API_KEY to enable) — rules only");
   const news = await soso.featuredNews(20).catch(() => []);
 

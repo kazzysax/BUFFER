@@ -174,7 +174,7 @@ export default async function Landing() {
                   </div>
                 </div>
                 <p className="small" style={{ margin: 0 }}>
-                  Before {nextHedge.meta.label}. Every open order auto-cancels after {DEFAULT_GUARDRAILS.maxHoldHours}h if Buffer goes quiet.
+                  Before {nextHedge.meta.label}. The stop and target sit on SoDEX, so the hedge stays protected even if Buffer is offline.
                 </p>
               </div>
             ) : (
@@ -214,7 +214,7 @@ export default async function Landing() {
           <li>
             <span className={s.stepNo}>3</span>
             <h3 className="h3">Shield an hour early</h3>
-            <p>A sized short on SoDEX offsets part of your holdings, with a stop, a target and an auto-cancel.</p>
+            <p>A sized short on SoDEX offsets part of your holdings, with its own stop and target.</p>
           </li>
           <li>
             <span className={s.stepNo}>4</span>
@@ -270,7 +270,7 @@ export default async function Landing() {
               </div>
             </div>
             <h3 className="h3">Limits you set, enforced in code</h3>
-            <p className="small">Hedges only ever reduce your exposure. Every order has a stop, open orders cancel themselves if Buffer goes offline, and one button closes everything.</p>
+            <p className="small">Hedges never exceed what you hold, every hedge carries its own stop on SoDEX, and one button closes everything.</p>
           </article>
         </div>
       </section>
